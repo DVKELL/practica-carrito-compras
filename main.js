@@ -26,7 +26,7 @@ class Producto {
   }
 }
 
-// Productos en existencia
+// ----------------- Productos en existencia
 /*
   const producto1 = new Producto(
     "Laptop Pro X14",
@@ -59,12 +59,11 @@ const CantElementsCarritoAsideSPAN = document.getElementById(
 const elementosEnCarritoDIV = document.getElementById("ElementosEnCarrito");
 const totalSPAN = document.getElementById("total");
 
-// Variables
+// -----------------  Variables
 let EstilosProductoDIV =
   "bg-gray-900 border border-gray-800 rounded-xl overflow-hidden flex flex-col hover:border-cyan-500/50 transition-all shadow-lg";
-const EstilosTextosDIV = "p-4 flex flex-col justify-between";
 
-// Arreglos
+// -----------------  Arreglos
 const productosEnExistencia = [
   new Producto(
     "Laptop Pro X14",
@@ -94,12 +93,44 @@ const productosEnExistencia = [
 
 let productosEnCarrito = [];
 
-// Funciones
+// -----------------  Funciones
+const contarProductosCarrito = () => {
+  let cantidad = productosEnCarrito.length;
+
+  if (cantidad > 0) {
+    CantElementsCarritoHeaderSPAN.classList.remove("hidden");
+    CantElementsCarritoAsideSPAN.textContent = cantidad;
+    CantElementsCarritoHeaderSPAN.textContent = cantidad;
+  } else {
+    CantElementsCarritoHeaderSPAN.classList.add("hidden");
+    CantElementsCarritoAsideSPAN.textContent = "";
+  }
+};
+
 const agregarAlCarrito = (id) => {
   let esteProducto = productosEnExistencia.find((p) => p.id === id);
   productosEnCarrito.push(esteProducto);
 
-  console.log(productosEnCarrito);
+  renderizarProductos("productosEnCarrito");
+  contarProductosCarrito();
+  calcularTotal();
+};
+
+const eliminarDelCarrito = (id) => {
+  productosEnCarrito = productosEnCarrito.filter((p) => p.id !== id);
+  renderizarProductos("productosEnCarrito");
+  contarProductosCarrito();
+  calcularTotal();
+};
+
+const calcularTotal = () => {
+  let total = productosEnCarrito.reduce((total, p) => total + p.precio, 0);
+
+  if (total > 0) {
+    totalSPAN.textContent = total;
+  } else {
+    totalSPAN.textContent = "";
+  }
 };
 
 const renderizarProductos = (arrayRecorrer) => {
@@ -141,12 +172,35 @@ const renderizarProductos = (arrayRecorrer) => {
       productosContainerDIV.appendChild(divProducto);
     });
   } else if (arrayRecorrer === "productosEnCarrito") {
+    elementosEnCarritoDIV.innerHTML = "";
     productosEnCarrito.forEach((p) => {
-      // Creo el DIV
+      // Creo el elemento HTML
       const divProducto = document.createElement("div");
+      divProducto.innerHTML = `
+        <div
+          class="flex items-center justify-between bg-gray-950/50 p-3 rounded-xl border border-gray-800/80"
+        >
+          <div class="flex-1">
+            <h4 class="text-sm font-semibold text-white">${p.nombre}</h4>
+            <p class="text-xs text-gray-400">Cant: 1</p>
+          </div>
+          <div class="flex flex-col items-end">
+            <span class="text-sm font-bold text-cyan-400">$${p.precio}</span>
+            <button
+              onClick="eliminarDelCarrito(${p.id})"
+              class="block text-xs text-red-400 hover:text-red-300 mt-1 cursor-pointer"
+            >
+              Eliminar
+            </button>
+          </div>
+        </div>
+      `;
+
+      // Lo inserto en el div
+      elementosEnCarritoDIV.appendChild(divProducto);
     });
   }
 };
 
-// Ejecucion
+// -----------------  Ejecucion
 renderizarProductos("productosEnExistencia");
